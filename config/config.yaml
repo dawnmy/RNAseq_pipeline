@@ -1,0 +1,5 @@
+dataset: CPm
+fq_dir: /vol/projects/dzhiluo/Pminimum/data/seq
+out_dir: /vol/projects/dzhiluo/Pminimum/outputs
+ref: /vol/projects/dzhiluo/Pminimum/ref/Prorocentrum-minimum-CCMP1329.cds.fa
+threads: 20
