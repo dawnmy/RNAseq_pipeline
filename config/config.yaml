@@ -1,19 +1,19 @@
 dataset: CPm
-fq_dir: /vol/projects/dzhiluo/Pminimum/data/seq
-out_dir: /vol/projects/dzhiluo/Pminimum/outputs
-ref: /vol/projects/dzhiluo/Pminimum/ref/Prorocentrum-minimum-CCMP1329.cds.fa
-ref_pep: /vol/projects/dzhiluo/Pminimum/ref/Prorocentrum-minimum-CCMP1329.cds.fa
-kegg: /vol/projects/dzhiluo/dbs/kegg/kegg/genes/fasta/family_eukaryotes.pep
-gene_ko_map: /vol/projects/dzhiluo/dbs/kegg/genes_ko.list
-kofamscan: /vol/projects/dzhiluo/dbs/kegg/kofamscan/bin
+fq_dir: ../data/seq
+out_dir: ../outputs
+ref: ../ref/Prorocentrum-minimum-CCMP1329.cds.fa
+ref_pep: ../ref/Prorocentrum-minimum-CCMP1329.cds.fa
+kegg: ../../dbs/kegg/kegg/genes/fasta/family_eukaryotes.pep
+gene_ko_map: ../../dbs/kegg/genes_ko.list
+kofamscan: ../../dbs/kegg/kofamscan/bin
 is_long_read: false
 
 # Path to your KO-HMM database
 # A database can be a .hmm file, a .hal file or a directory in which
 # .hmm files are. Omit the extension if it is .hal or .hmm file
-profile: /vol/projects/dzhiluo/dbs/kegg/kofamscan/db/profiles
+profile: ../../dbs/kegg/kofamscan/db/profiles
 
 # Path to the KO list file
-ko_list: /vol/projects/dzhiluo/dbs/kegg/kofamscan/db/ko_list
+ko_list: ../../dbs/kegg/kofamscan/db/ko_list
 
 threads: 20
