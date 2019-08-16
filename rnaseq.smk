@@ -33,20 +33,6 @@ rule all:
         count = expand(
             results_dir + "/count/{dataset}.count", dataset=dataset)
 
-rule fastp:
-    input:
-        get_se_fq
-    output:
-        reads = qc_dir + "/{sample}.qc.fq.gz",
-        html = reports_dir + "/fastp/{sample}.qc.report.html"
-    threads: 8
-    conda:
-        "config/conda.rnaseq.yaml"
-    shell:
-        """
-        fastp -i {input} -o {output.reads} -5 20 -3 20 -l 30 -n 3 -h {output.html} -w {threads}
-        """
-
 rule build_idx:
     input:
         ref = ref
@@ -62,49 +48,102 @@ rule build_idx:
         """
 
 
-rule bwa:
-    input:
-        reads = rules.fastp.output.reads,
-        ref = ref,
-        ref_idx = rules.build_idx.output.bwa_idx
-    output:
-        out_data_dir + "/bam/{sample}.bam"
-    conda:
-        "config/conda.rnaseq.yaml"
-    benchmark:
-        reports_dir + "/benchmarks/{sample}.bwa.txt"
-    log:
-        reports_dir + "/bwa/{sample}.log"
-    threads: threads
-    shell:
-        """
-        bwa mem -t {threads} {input.ref} {input.reads} |\
-            samtools view -@ {threads} -Shb - 2>> {log} |\
-            samtools sort -@ {threads} -m 20G - -o {output} >> {log} 2>&1
-        """
+# If it is not long read seq data
+if not config["is_long_read"]:
+    rule fastp:
+        input:
+            get_se_fq
+        output:
+            reads = qc_dir + "/{sample}.qc.fq.gz",
+            html = reports_dir + "/fastp/{sample}.qc.report.html"
+        threads: 8
+        conda:
+            "config/conda.rnaseq.yaml"
+        shell:
+            """
+            fastp -i {input} -o {output.reads} -5 20 -3 20 -l 30 -n 3 -h {output.html} -w {threads}
+            """
 
-rule bam_filter:
-    input:
-        rules.bwa.output
-    output:
-        bam = out_data_dir + "/bam/{sample}.filtered.bam",
-        bai = out_data_dir + "/bam/{sample}.filtered.bam.bai"
-    conda:
-        "config/conda.rnaseq.yaml"
-    log:
-        reports_dir + "/samtools/{sample}.log"
-    threads: threads
-    shell:
-        """
-        samtools view -@ {threads} -Shb -F 4 -q 10 {input} 2>> {log} |\
-            samtools sort -@ {threads} -m 20G - -o {output.bam} >> {log} 2>&1
-        samtools index {output.bam}
-        """
+    rule bwa:
+        input:
+            reads = rules.fastp.output.reads,
+            ref = ref,
+            ref_idx = rules.build_idx.output.bwa_idx
+        output:
+            out_data_dir + "/bam/{sample}.bam"
+        conda:
+            "config/conda.rnaseq.yaml"
+        benchmark:
+            reports_dir + "/benchmarks/{sample}.bwa.txt"
+        log:
+            reports_dir + "/bwa/{sample}.log"
+        threads: threads
+        shell:
+            """
+            bwa mem -t {threads} {input.ref} {input.reads} |\
+                samtools view -@ {threads} -Shb - 2>> {log} |\
+                samtools sort -@ {threads} -m 20G - -o {output} >> {log} 2>&1
+            """
+
+    rule bam_filter:
+        input:
+            rules.bwa.output
+        output:
+            out_data_dir + "/bam/{sample}.filtered.bam"
+        conda:
+            "config/conda.rnaseq.yaml"
+        log:
+            reports_dir + "/samtools/{sample}.log"
+        threads: threads
+        shell:
+            """
+            samtools view -@ {threads} -Shb -F 4 -q 10 {input} 2>> {log} |\
+                samtools sort -@ {threads} -m 20G - -o {output} >> {log} 2>&1
+            samtools index {output}
+            """
+
+# If long read seq data
+else:
+    rule porechop:
+        input:
+            get_se_fq
+        output:
+            reads = qc_dir + "/{sample}.qc.fq.gz",
+            #html = reports_dir + "/fastp/{sample}.qc.report.html"
+        threads: 8
+        conda:
+            "config/conda.rnaseq.yaml"
+        shell:
+            """
+            porechop -i {input} -o {output.reads} 
+            """
+
+    rule graphmap:
+        input:
+            reads = rules.porechop.output.reads,
+            ref = ref
+        output:
+            out_data_dir + "/bam/{sample}.bam"
+        conda:
+            "config/conda.rnaseq.yaml"
+        benchmark:
+            reports_dir + "/benchmarks/{sample}.graphmap.txt"
+        log:
+            reports_dir + "/graphmap/{sample}.log"
+        threads: threads
+        shell:
+            """
+            graphmap align -r {input.ref} -d {input.reads} -t {threads} |\
+                samtools view -@ {threads} -Shb - 2>> {log} |\
+                samtools sort -@ {threads} -m 20G - -o {output} >> {log} 2>&1
+            samtools index {output}
+            """
 
 rule samcount:
     input:
-        bam = rules.bam_filter.output.bam,
-        bai = rules.bam_filter.output.bai
+        bam = rules.bam_filter.output if \
+            not config["is_long_read"] else \
+            rules.graphmap.output
     output:
         results_dir + "/count/{sample}.samcount"
     conda:
