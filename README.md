@@ -8,11 +8,12 @@ Currently it is only for single-end sequencing data, but can be easyly adapted f
 To reproduce the output, you need to use `Bioconda`.
 
 Please follow the instruction [here](https://bioconda.github.io) to install `Bioconda`. 
-And then you need to install `snakemake` and Python package `click`:
+And then you need to install `snakemake` and Python package `click` and `pandas`:
 
 ```shell
 conda install snakemake=5.5.4
 conda install Click=7.0
+conda install pandas=0.25.0
 ```
 
 After this has been done, download the pipeline onto your system:
