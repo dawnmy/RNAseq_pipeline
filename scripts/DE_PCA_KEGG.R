@@ -124,8 +124,10 @@ keggenrich_genes <- function(de, fc="up", method="kover"){
 ## Perform KEGG enrichment analysis using Fisher's exact test
 kegg_enrich_up_24_12 <- keggenrich_genes(et_24_12, fc="up", method="kover")
 kegg_enrich_down_24_12 <- keggenrich_genes(et_24_12, fc="down", method="kover")
-p1 <- dotplot(kegg_enrich_up_24_12, showCategory=30) + ggtitle("KEGG enrich for up-regulated in 24day compared with 12day")
-p2 <- dotplot(kegg_enrich_down_24_12, showCategory=30) + ggtitle("KEGG enrich for down-regulated in 24day compared with 12day")
+p1 <- dotplot(kegg_enrich_up_24_12, showCategory=30) + 
+  ggtitle("KEGG enrich for up-regulated in 24day compared with 12day")
+p2 <- dotplot(kegg_enrich_down_24_12, showCategory=30) + 
+  ggtitle("KEGG enrich for down-regulated in 24day compared with 12day")
 
 ggsave("./kegg_enrich_24_12.pdf", 
        plot=plot_grid(p1, p2, ncol=1), 
