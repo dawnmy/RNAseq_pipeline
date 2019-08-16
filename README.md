@@ -1,6 +1,6 @@
 ## A pipeline for RNAseq data processing and DE analysis.
 
-Currently it is only for single-end sequencing data, but can be easyly adapted for paired-end
+Currently it is for single-end rna-sequencing data, and nanopre long read rna-seq data.
 
 
 ### Prerequirements
@@ -16,6 +16,7 @@ conda install Click=7.0
 conda install pandas=0.25.0
 ```
 
+
 After this has been done, download the pipeline onto your system:
 
 ```shell
@@ -27,14 +28,30 @@ All the paths must be either relative path to the parent directory of `config` f
 
 ```yaml
 dataset: CPm # name for the dataset
-fq_dir: /vol/projects/dzhiluo/Pminimum/data/seq
-out_dir: /vol/projects/dzhiluo/Pminimum/outputs
-ref: /vol/projects/dzhiluo/Pminimum/ref/Prorocentrum-minimum-CCMP1329.cds.fa
+fq_dir: ../data/seq
+out_dir: ../outputs
+ref: ../ref/Prorocentrum-minimum-CCMP1329.cds.fa
+ref_pep: ../ref/Prorocentrum-minimum-CCMP1329.cds.fa
+kegg: <path to the family_eukaryotes.pep file> # Please create the corresponding database or index if you use diamond or blastx
+gene_ko_map: <path to the KEGG gene and KO ID map file genes_ko.list>  
+kofamscan: <dir to the exe of kofamscan>
+is_long_read: false # Is it long read rnaseq data
+
+# Path to your KO-HMM database
+# A database can be a .hmm file, a .hal file or a directory in which
+# .hmm files are. Omit the extension if it is .hal or .hmm file
+profile: <dir to kofamscan profiles>
+
+# Path to the KO list file
+ko_list: <path to the kofamscan ko_list file>
+
 threads: 20
 ```
 
 
 ### Run the pipelines
+
+#### Get the expression table for genes
 
 ```shell
 snakemake -s rnaseq.smk -j 20 --use-conda
@@ -54,7 +71,25 @@ snakemake -s rnaseq.smk --latency-wait 30 --use-conda -c "qsub -cwd -q <the job 
  -v PATH" -j 2
 ```
 
-**The DE and PCA analysis R script is under scripts folder** 
+#### Make the KO gene expression table
+
+1. Annotate the genes using KEGG peptide sequences (optional)
+
+You can skip this step if you want to use the gene KO annotation 
+file provided in this repo in: `data/annotation/gene_family_euk_kegg.diamond.txt`.
+Then you should copy this file into the `<out_dir>/<dataset>/data/annotation/` directory.
+If the folder does not exist, please create it.
+
+2. Map the KEGG annotation, KO ID to the gene expression table to make a KO gene expression table
+
+```shell
+snakemake -s functional_analysis.smk -j 10 --use-conda
+```
+
+
+**The R scripts for DE, PCA analysis and the KEGG pathway enrichment analysis are under scripts folder**.
+Please modify the script (input, output, figure file name, and the group information) to adatpt it to your own case. 
+It is recommended to run the R scripts in an interactive way in your local PC for better data understanding. 
 
 ### The output structure
 
@@ -62,11 +97,13 @@ snakemake -s rnaseq.smk --latency-wait 30 --use-conda -c "qsub -cwd -q <the job 
 outputs
 └── CPm
     ├── data
+    │   ├── annotation
     │   ├── bam
     │   └── qc_fq
     ├── reports
     │   ├── benchmarks
     │   ├── bwa
+    │   ├── diamond
     │   ├── fastp
     │   └── samtools
     └── results

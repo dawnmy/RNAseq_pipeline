@@ -7,7 +7,7 @@ library(data.table)
 pm_ko_raw <- read.table(file="./CPm.diamond.ko.count", sep="\t", row.names=1, header = T)
 pm_ko_wo_noko <- pm_ko_raw[rownames(pm_ko_raw)!="noko",]
 row.names(pm_ko_wo_noko) <- gsub("^ko:", "", row.names(pm_ko_wo_noko))
-ko_func <- fread("../data/annotation/ko_annotation.txt", sep="@", header = F)
+ko_func <- fread("../data/annotation/ko_function_map.txt", sep="@", header = F)
 colnames(ko_func) <- c("genes", "function")
 
 ko_func_uniq <- as.data.frame(ko_func[!duplicated(ko_func$genes),])
