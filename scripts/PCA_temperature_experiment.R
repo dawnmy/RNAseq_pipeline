@@ -1,5 +1,6 @@
 library(ggfortify)
 library(tidyverse)
+library(cowplot)
 
 # Run this after DE script
 pm.normcount.pca <- prcomp(t(cpm(y))
