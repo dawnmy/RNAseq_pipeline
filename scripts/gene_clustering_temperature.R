@@ -15,6 +15,10 @@ rpkm <- rpkm(y, gene.length = gene_length[y$genes$genes,])
 logrpkm <- log2(rpkm + 1)
 centered_logrpkm <- logrpkm - rowMeans(logrpkm)
 
+# compute the group RPKM
+rpkm_by_group <- rpkmByGroup(y, gene.length = gene_length[y$genes$genes,])
+# write.table(as.data.frame(rpkm_by_group), file='analyses/rpkm_by_group.txt', sep='\t', quote = F)
+
 # centered logRPKM of all significantly DE genes in ex ANOVA comparison and st ANOVA comparison
 ex_sig_centered_logrpkm <- centered_logrpkm[ex_anova_de_sig$genes, ex_samples]
 st_sig_centered_logrpkm <- centered_logrpkm[st_anova_de_sig$genes, st_samples]
