@@ -1,6 +1,7 @@
-## A pipeline for RNAseq data processing and DE analysis.
+## RNAseq data processing and transcriptome analysis for P. minimum (co-culture and temperature experiment).
 
 Currently it is for single-end rna-sequencing data, and nanopre long read rna-seq data.
+This pipeline can be adapted to other RNAseq analysis.
 
 
 ### Prerequirements
