@@ -3,7 +3,7 @@ library(tidyverse)
 library(cowplot)
 
 # Run this after DE script
-pm.normcount.pca <- prcomp(t(cpm(y))
+pm.normcount.pca <- prcomp(t(cpm(y)))
 pm.rel.pca <- prcomp(t(pm_rel))
 pca_sample <- rownames(y$samples)
 metadata <- y$samples
